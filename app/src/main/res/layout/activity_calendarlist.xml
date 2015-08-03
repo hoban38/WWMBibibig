@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:orientation="horizontal"
+        android:background="#ff355689">
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:contentDescription="@string/icon_desc"
+            android:src="@drawable/ic_launcher" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical|center_horizontal"
+            android:text="@string/calendarList"
+            android:textSize="21sp"
+            android:textColor="#ffffff"
+            android:textAppearance="?android:attr/textAppearanceMediumInverse" />
+
+        <View
+            android:layout_weight="0.48"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"/>
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="14dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="14dp"
+            android:indeterminate="true"
+            android:id="@+id/title_refresh_progress"
+            android:visibility="gone" />
+
+        <ImageView
+            android:layout_width="1px"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/title_separator_desc" />
+
+        <ImageButton
+            android:layout_gravity="end"
+            android:layout_width="45dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/title_button"
+            android:contentDescription="@string/description_add"
+            android:keepScreenOn="true"
+            android:onClick="onAddClick"
+            android:src="@drawable/ic_title_add" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/accountname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/credential"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <ListView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+</LinearLayout>
