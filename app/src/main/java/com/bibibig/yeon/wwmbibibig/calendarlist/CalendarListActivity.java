@@ -19,11 +19,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.bibibig.yeon.wwmbibibig.MainActivity;
 import com.bibibig.yeon.wwmbibibig.R;
+import com.bibibig.yeon.wwmbibibig.calendarevent.EventListActivity;
+import com.bibibig.yeon.wwmbibibig.common.BasicInfo;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.services.calendar.model.Calendar;
 
 import java.util.ArrayList;
@@ -33,19 +34,9 @@ import java.util.List;
 public class CalendarListActivity extends Activity {
     static final String TAG = "CalendarListActivity";
 
-    static final int REQUEST_GOOGLE_PLAY_SERVICES = 0;
-    static final int REQUEST_AUTHORIZATION = 1;
-    static final int REQUEST_ACCOUNT_PICKER = 2;
-    static final int ADD_OR_EDIT_CALENDAR_REQUEST = 3;
-
     private static final int CONTEXT_EDIT = 0;
     private static final int CONTEXT_DELETE = 1;
     private static final int CONTEXT_BATCH_ADD = 2;
-
-    private static final String PREF_ACCOUNT_NAME = "accountName";
-
-    GoogleAccountCredential credential;
-    com.google.api.services.calendar.Calendar Calendarclient;
 
     CalendarModel model = new CalendarModel();
     int numAsyncTasks;
@@ -57,27 +48,19 @@ public class CalendarListActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendarlist);
 
-        this.credential = MainActivity.credential;
-        credential.setSelectedAccountName(MainActivity.accountnameStr);
-        this.Calendarclient = MainActivity.Calendarclient;
-
-
         listView = (ListView) findViewById(R.id.list);
         registerForContextMenu(listView);
-
     }
     @Override
     protected void onResume() {
         super.onResume();
-        if(credential.getSelectedAccountName() !=null) {
+        if(BasicInfo.credential.getSelectedAccountName() !=null) {
             new AsyncLoadCalendarList(this).execute();
         }else{
             if (checkGooglePlayServicesAvailable()) {
                 haveGooglePlayServices();
             }
         }
-
-
     }
 
     private boolean checkGooglePlayServicesAvailable() {
@@ -92,15 +75,16 @@ public class CalendarListActivity extends Activity {
         runOnUiThread(new Runnable() {
             public void run() {
                 Dialog dialog = GooglePlayServicesUtil.getErrorDialog(
-                        connectionStatusCode, CalendarListActivity.this, REQUEST_GOOGLE_PLAY_SERVICES);
+                        connectionStatusCode, CalendarListActivity.this, BasicInfo.REQUEST_GOOGLE_PLAY_SERVICES);
                 dialog.show();
             }
         });
     }
 
+
     private void haveGooglePlayServices() {
         // check if there is already an account selected
-        if (credential.getSelectedAccountName() == null) {
+        if (BasicInfo.credential.getSelectedAccountName() == null) {
             // ask user to choose account
             chooseAccount();
         } else {
@@ -110,7 +94,7 @@ public class CalendarListActivity extends Activity {
     }
 
     private void chooseAccount() {
-        startActivityForResult(credential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
+        startActivityForResult(BasicInfo.credential.newChooseAccountIntent(), BasicInfo.REQUEST_ACCOUNT_PICKER);
 
     }
 
@@ -118,34 +102,36 @@ public class CalendarListActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case REQUEST_GOOGLE_PLAY_SERVICES:
+
+
+            case BasicInfo.REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode == Activity.RESULT_OK) {
                     haveGooglePlayServices();
                 } else {
                     checkGooglePlayServicesAvailable();
                 }
                 break;
-            case REQUEST_AUTHORIZATION:
+            case BasicInfo.REQUEST_AUTHORIZATION:
                 if (resultCode == Activity.RESULT_OK) {
                     new AsyncLoadCalendarList(this).execute();
                 } else {
                     chooseAccount();
                 }
                 break;
-            case REQUEST_ACCOUNT_PICKER:
+            case BasicInfo.REQUEST_ACCOUNT_PICKER:
                 if (resultCode == Activity.RESULT_OK && data != null && data.getExtras() != null) {
                     String accountName = data.getExtras().getString(AccountManager.KEY_ACCOUNT_NAME);
                     if (accountName != null) {
-                        credential.setSelectedAccountName(accountName);
+                        BasicInfo.credential.setSelectedAccountName(accountName);
                         SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = settings.edit();
-                        editor.putString(PREF_ACCOUNT_NAME, accountName);
-                        editor.commit();
+                        editor.putString(BasicInfo.PREF_ACCOUNT_NAME, accountName);
+                        editor.apply();
                         new AsyncLoadCalendarList(this).execute();
                     }
                 }
                 break;
-            case ADD_OR_EDIT_CALENDAR_REQUEST:
+            case BasicInfo.ADD_OR_EDIT_CALENDAR_REQUEST:
                 if (resultCode == Activity.RESULT_OK) {
                     Calendar calendar = new Calendar();
                     calendar.setSummary(data.getStringExtra("summary"));
@@ -162,9 +148,7 @@ public class CalendarListActivity extends Activity {
     }
 
     void refreshView() {
-        adapter = new ArrayAdapter<CalendarInfo>(
-                this, android.R.layout.simple_list_item_1, model.toSortedArray()) {
-
+        adapter = new ArrayAdapter<CalendarInfo>(this, android.R.layout.simple_list_item_1, model.toSortedArray()) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 // by default it uses toString; override to use summary instead
@@ -175,6 +159,20 @@ public class CalendarListActivity extends Activity {
             }
         };
         listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                CalendarInfo calendarInfo = (CalendarInfo) parent.getAdapter().getItem(position);
+                Toast.makeText(getApplicationContext(), calendarInfo.id, Toast.LENGTH_SHORT).show();
+                Intent i = new Intent(getApplicationContext(), EventListActivity.class);
+                i.putExtra("id", calendarInfo.id);
+                i.putExtra("summary", calendarInfo.summary);
+                startActivity(i);
+            }
+        });
+
+
     }
 
     @Override
@@ -254,6 +252,6 @@ public class CalendarListActivity extends Activity {
             intent.putExtra("summary", calendarInfo.summary);
         }
 
-        startActivityForResult(intent, ADD_OR_EDIT_CALENDAR_REQUEST);
+        startActivityForResult(intent, BasicInfo.ADD_OR_EDIT_CALENDAR_REQUEST);
     }
 }

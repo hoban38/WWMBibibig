@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,6 +14,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.bibibig.yeon.wwmbibibig.calendarlist.CalendarListActivity;
+import com.bibibig.yeon.wwmbibibig.common.BasicInfo;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -23,34 +23,22 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.ExponentialBackOff;
-import com.google.api.services.calendar.CalendarScopes;
 
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends Activity {
     static final String TAG = "MainActivity";
     SharedPreferences session;
     SharedPreferences.Editor editor;
 
     private static final Level LOGGING_LEVEL = Level.OFF;
-    public static final String MyPREFERENCES = "MyPrefs";
-    public static final String PREF_CREDENTIAL = "credential";
-    public static final String PREF_ACCOUNT_NAME = "accountName";
-
-    static final int REQUEST_GOOGLE_PLAY_SERVICES = 0;
-    static final int REQUEST_AUTHORIZATION = 1;
-    static final int REQUEST_ACCOUNT_PICKER = 2;
 
     final HttpTransport transport = AndroidHttp.newCompatibleTransport();
     final JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
 
-    public static GoogleAccountCredential credential;
-    public static com.google.api.services.calendar.Calendar Calendarclient;
-    public static final String[] SCOPES = { CalendarScopes.CALENDAR };
-    public static String accountnameStr ;
     TextView mStatusText;
     TextView useraccount;
     @Override
@@ -91,27 +79,28 @@ public class MainActivity extends ActionBarActivity {
 //        });
 
         Logger.getLogger("com.google.api.client").setLevel(LOGGING_LEVEL);
-        session= getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
+        session= getSharedPreferences(BasicInfo.MyPREFERENCES, Context.MODE_PRIVATE);
         editor = session.edit();
-        credential = GoogleAccountCredential.usingOAuth2(
-                getApplicationContext(), Arrays.asList(SCOPES))
+        BasicInfo.credential = GoogleAccountCredential.usingOAuth2(
+                getApplicationContext(), Arrays.asList(BasicInfo.SCOPES))
                 .setBackOff(new ExponentialBackOff())
-                .setSelectedAccountName(session.getString(PREF_ACCOUNT_NAME, null));
+                .setSelectedAccountName(session.getString(BasicInfo.PREF_ACCOUNT_NAME, null));
 
         TextView cre = (TextView) findViewById(R.id.credential);
-        cre.setText(credential.toString());
+        cre.setText(BasicInfo.credential.toString());
 
-        editor.putString(PREF_CREDENTIAL, credential.toString());
-        editor.commit();
+        editor.putString(BasicInfo.PREF_CREDENTIAL, BasicInfo.credential.toString());
+        editor.apply();
 
-        Calendarclient = new com.google.api.services.calendar.Calendar.Builder(
-                transport, jsonFactory, credential)
+
+        BasicInfo.Calendarclient = new com.google.api.services.calendar.Calendar.Builder(
+                transport, jsonFactory, BasicInfo.credential)
                 .setApplicationName("Google-CalendarBibibig/1.0")
                 .build();
 
         TextView Cclient = (TextView) findViewById(R.id.calendarclient);
-        Cclient.setText(Calendarclient.toString());
-        useraccount.setText(accountnameStr);
+        Cclient.setText(BasicInfo.Calendarclient.toString());
+        useraccount.setText(BasicInfo.accountnameStr);
     }
 
     @Override
@@ -126,42 +115,42 @@ public class MainActivity extends ActionBarActivity {
 
     private void haveGooglePlayServices() {
         // check if there is already an account selected
-        if (credential.getSelectedAccountName() == null) {
+        if (BasicInfo.credential.getSelectedAccountName() == null) {
             // ask user to choose account
             chooseAccount();
         }
     }
 
     private void chooseAccount() {
-        startActivityForResult(credential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
+        startActivityForResult(BasicInfo.credential.newChooseAccountIntent(), BasicInfo.REQUEST_ACCOUNT_PICKER);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case REQUEST_GOOGLE_PLAY_SERVICES:
+            case BasicInfo.REQUEST_GOOGLE_PLAY_SERVICES:
                 if (resultCode == Activity.RESULT_OK) {
                     haveGooglePlayServices();
                 } else {
                     isGooglePlayServicesAvailable();
                 }
                 break;
-            case REQUEST_ACCOUNT_PICKER:
+            case BasicInfo.REQUEST_ACCOUNT_PICKER:
                 if (resultCode == Activity.RESULT_OK && data != null && data.getExtras() != null) {
                     String accountName = data.getExtras().getString(AccountManager.KEY_ACCOUNT_NAME);
                     if (accountName != null) {
-                        credential.setSelectedAccountName(accountName);
-                        accountnameStr = accountName;
-                        editor.putString(PREF_ACCOUNT_NAME, accountName);
+                        BasicInfo.credential.setSelectedAccountName(accountName);
+                        BasicInfo.accountnameStr = accountName;
+                        editor.putString(BasicInfo.PREF_ACCOUNT_NAME, accountName);
                         editor.commit();
-                        useraccount.setText(accountnameStr);
+                        useraccount.setText(BasicInfo.accountnameStr);
 
                     }
                 }else if(resultCode == RESULT_CANCELED){
                     mStatusText.setText("Account unspecified");
                 }
                 break;
-            case REQUEST_AUTHORIZATION:
+            case BasicInfo.REQUEST_AUTHORIZATION:
                 if (resultCode != Activity.RESULT_OK) {
                     chooseAccount();
                 }
@@ -185,7 +174,7 @@ public class MainActivity extends ActionBarActivity {
         runOnUiThread(new Runnable() {
             public void run() {
                 Dialog dialog = GooglePlayServicesUtil.getErrorDialog(
-                        connectionStatusCode, MainActivity.this, REQUEST_GOOGLE_PLAY_SERVICES);
+                        connectionStatusCode, MainActivity.this, BasicInfo.REQUEST_GOOGLE_PLAY_SERVICES);
                 dialog.show();
             }
         });

@@ -14,6 +14,7 @@
 
 package com.bibibig.yeon.wwmbibibig.calendarlist;
 
+import com.bibibig.yeon.wwmbibibig.common.BasicInfo;
 import com.google.api.services.calendar.model.Calendar;
 
 import java.io.IOException;
@@ -34,7 +35,7 @@ class AsyncInsertCalendarList extends CalendarListAsyncTask {
 
   @Override
   protected void doInBackground() throws IOException {
-    Calendar calendar = client.calendars().insert(entry).setFields(CalendarInfo.FIELDS).execute();
+    Calendar calendar = client.calendars().insert(entry).setFields(BasicInfo.CALFIELDS).execute();
     model.add(calendar);
 //      Settings setting = client.settings().list().execute();
 //        List<Setting> sets = setting.getItems();

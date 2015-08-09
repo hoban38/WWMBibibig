@@ -22,11 +22,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".calendarlist.CalendarListActivity"></activity>
-        <activity android:name=".calendarlist.AddOrEditCalendarListActivity"></activity>
+        <activity android:name=".calendarlist.CalendarListActivity" />
+        <activity android:name=".calendarlist.AddOrEditCalendarListActivity" />
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
+        <activity
+            android:name=".calendarevent.EventListActivity"
+            android:label="@string/title_activity_calendar_event_list" >
+        </activity>
+
     </application>
 
 </manifest>

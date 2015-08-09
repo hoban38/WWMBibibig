@@ -14,6 +14,7 @@
 
 package com.bibibig.yeon.wwmbibibig.calendarlist;
 
+import com.bibibig.yeon.wwmbibibig.common.BasicInfo;
 import com.bibibig.yeon.wwmbibibig.common.Utils;
 import com.google.api.client.googleapis.batch.BatchRequest;
 import com.google.api.client.googleapis.batch.json.JsonBatchCallback;
@@ -44,7 +45,7 @@ class AsyncBatchInsertCalendarList extends CalendarListAsyncTask {
   protected void doInBackground() throws IOException {
     BatchRequest batch = client.batch();
     for (Calendar calendar : calendars) {
-      client.calendars().insert(calendar).setFields(CalendarInfo.FIELDS)
+      client.calendars().insert(calendar).setFields(BasicInfo.CALFIELDS)
           .queue(batch, new JsonBatchCallback<Calendar>() {
 
             public void onSuccess(Calendar calendar, HttpHeaders headers) {

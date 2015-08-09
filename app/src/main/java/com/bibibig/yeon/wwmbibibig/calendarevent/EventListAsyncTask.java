@@ -1,4 +1,4 @@
-package com.bibibig.yeon.wwmbibibig.calendarlist;
+package com.bibibig.yeon.wwmbibibig.calendarevent;
 
 import android.os.AsyncTask;
 import android.view.View;
@@ -11,13 +11,13 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 
 import java.io.IOException;
 
-abstract class CalendarListAsyncTask extends AsyncTask<Void,Void,Boolean>{
-    final CalendarListActivity activity;
-    final CalendarModel model;
-    final com.google.api.services.calendar.Calendar client;
+abstract class EventListAsyncTask extends AsyncTask<Void,Void,Boolean>{
+    public final EventListActivity activity;
+    public final EventModel model;
+    public final com.google.api.services.calendar.Calendar client;
     private final View progressBar;
 
-    CalendarListAsyncTask(CalendarListActivity activity) {
+    EventListAsyncTask(EventListActivity activity) {
         this.activity = activity;
         model = activity.model;
         client = BasicInfo.Calendarclient;
@@ -37,7 +37,7 @@ abstract class CalendarListAsyncTask extends AsyncTask<Void,Void,Boolean>{
             activity.startActivityForResult(
                     userRecoverableException.getIntent(), BasicInfo.REQUEST_AUTHORIZATION);
         } catch (IOException e) {
-            Utils.logAndShow(activity, CalendarListActivity.TAG, e);
+            Utils.logAndShow(activity, EventListActivity.TAG, e);
         }
         return false;
     }
@@ -68,5 +68,4 @@ abstract class CalendarListAsyncTask extends AsyncTask<Void,Void,Boolean>{
             activity.refreshView();
         }
     }
-
 }

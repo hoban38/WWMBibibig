@@ -14,6 +14,7 @@
 
 package com.bibibig.yeon.wwmbibibig.calendarlist;
 
+import com.bibibig.yeon.wwmbibibig.common.BasicInfo;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.calendar.model.Calendar;
 
@@ -39,7 +40,7 @@ class AsyncUpdateCalendarList extends CalendarListAsyncTask {
   protected void doInBackground() throws IOException {
     try {
       Calendar updatedCalendar =
-          client.calendars().patch(calendarId, entry).setFields(CalendarInfo.FIELDS).execute();
+          client.calendars().patch(calendarId, entry).setFields(BasicInfo.CALFIELDS).execute();
       model.add(updatedCalendar);
     } catch (GoogleJsonResponseException e) {
       // 404 Not Found would happen if user tries to delete an already deleted calendar
