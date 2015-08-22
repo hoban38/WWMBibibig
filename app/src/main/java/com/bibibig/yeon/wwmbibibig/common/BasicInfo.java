@@ -10,6 +10,7 @@ public class BasicInfo {
     public static final int REQUEST_AUTHORIZATION = 1;
     public static final int REQUEST_ACCOUNT_PICKER = 2;
     public static final int ADD_OR_EDIT_CALENDAR_REQUEST = 3;
+    public static final int ADD_OR_EDIT_EVENT_REQUEST = 4;
 
     public static final String MyPREFERENCES = "MyPrefs";
     public static final String PREF_CREDENTIAL = "credential";

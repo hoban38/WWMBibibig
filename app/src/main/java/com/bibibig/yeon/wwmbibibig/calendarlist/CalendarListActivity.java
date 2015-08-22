@@ -10,8 +10,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.ContextMenu;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +19,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bibibig.yeon.wwmbibibig.NavigationDrawerFragment;
 import com.bibibig.yeon.wwmbibibig.R;
 import com.bibibig.yeon.wwmbibibig.calendarevent.EventListActivity;
 import com.bibibig.yeon.wwmbibibig.common.BasicInfo;
@@ -31,12 +30,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class CalendarListActivity extends Activity {
+public class CalendarListActivity extends NavigationDrawerFragment {
     static final String TAG = "CalendarListActivity";
 
-    private static final int CONTEXT_EDIT = 0;
-    private static final int CONTEXT_DELETE = 1;
-    private static final int CONTEXT_BATCH_ADD = 2;
+    private final int CONTEXT_EDIT = 0;
+    private final int CONTEXT_DELETE = 1;
+    private final int CONTEXT_BATCH_ADD = 2;
 
     CalendarModel model = new CalendarModel();
     int numAsyncTasks;
@@ -44,15 +43,13 @@ public class CalendarListActivity extends Activity {
     ArrayAdapter<CalendarInfo> adapter;
     private ListView listView;
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_calendarlist);
 
-        listView = (ListView) findViewById(R.id.list);
-        registerForContextMenu(listView);
+        registerForContextMenu(mDrawerListView);
     }
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         if(BasicInfo.credential.getSelectedAccountName() !=null) {
             new AsyncLoadCalendarList(this).execute();
@@ -64,7 +61,7 @@ public class CalendarListActivity extends Activity {
     }
 
     private boolean checkGooglePlayServicesAvailable() {
-        final int connectionStatusCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        final int connectionStatusCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity().getApplicationContext());
         if (GooglePlayServicesUtil.isUserRecoverableError(connectionStatusCode)) {
             showGooglePlayServicesAvailabilityErrorDialog(connectionStatusCode);
             return false;
@@ -72,10 +69,10 @@ public class CalendarListActivity extends Activity {
         return true;
     }
     void showGooglePlayServicesAvailabilityErrorDialog(final int connectionStatusCode) {
-        runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
             public void run() {
                 Dialog dialog = GooglePlayServicesUtil.getErrorDialog(
-                        connectionStatusCode, CalendarListActivity.this, BasicInfo.REQUEST_GOOGLE_PLAY_SERVICES);
+                        connectionStatusCode, (Activity) getActivity().getApplicationContext(), BasicInfo.REQUEST_GOOGLE_PLAY_SERVICES);
                 dialog.show();
             }
         });
@@ -99,7 +96,7 @@ public class CalendarListActivity extends Activity {
     }
 
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
 
@@ -123,7 +120,7 @@ public class CalendarListActivity extends Activity {
                     String accountName = data.getExtras().getString(AccountManager.KEY_ACCOUNT_NAME);
                     if (accountName != null) {
                         BasicInfo.credential.setSelectedAccountName(accountName);
-                        SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
+                        SharedPreferences settings = getActivity().getPreferences(Context.MODE_PRIVATE);
                         SharedPreferences.Editor editor = settings.edit();
                         editor.putString(BasicInfo.PREF_ACCOUNT_NAME, accountName);
                         editor.apply();
@@ -148,7 +145,7 @@ public class CalendarListActivity extends Activity {
     }
 
     void refreshView() {
-        adapter = new ArrayAdapter<CalendarInfo>(this, android.R.layout.simple_list_item_1, model.toSortedArray()) {
+        adapter = new ArrayAdapter<CalendarInfo>(getActivity().getApplicationContext(), android.R.layout.simple_list_item_1, model.toSortedArray()) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 // by default it uses toString; override to use summary instead
@@ -164,8 +161,8 @@ public class CalendarListActivity extends Activity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 CalendarInfo calendarInfo = (CalendarInfo) parent.getAdapter().getItem(position);
-                Toast.makeText(getApplicationContext(), calendarInfo.id, Toast.LENGTH_SHORT).show();
-                Intent i = new Intent(getApplicationContext(), EventListActivity.class);
+                Toast.makeText(getActivity().getApplicationContext(), calendarInfo.id, Toast.LENGTH_SHORT).show();
+                Intent i = new Intent(getActivity().getApplicationContext(), EventListActivity.class);
                 i.putExtra("id", calendarInfo.id);
                 i.putExtra("summary", calendarInfo.summary);
                 startActivity(i);
@@ -173,13 +170,6 @@ public class CalendarListActivity extends Activity {
         });
 
 
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.calendarlist_menu, menu);
-        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -214,7 +204,7 @@ public class CalendarListActivity extends Activity {
                     startAddOrEditCalendarActivity(calendarInfo);
                     return true;
                 case CONTEXT_DELETE:
-                    new AlertDialog.Builder(this).setTitle(R.string.delete_title)
+                    new AlertDialog.Builder(getActivity().getApplicationContext()).setTitle(R.string.delete_title)
                             .setMessage(calendarInfo.summary)
                             .setCancelable(false)
                             .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
@@ -246,7 +236,7 @@ public class CalendarListActivity extends Activity {
     }
 
     private void startAddOrEditCalendarActivity(CalendarInfo calendarInfo) {
-        Intent intent = new Intent(this, AddOrEditCalendarListActivity.class);
+        Intent intent = new Intent(getActivity().getApplicationContext(), AddOrEditCalendarListActivity.class);
         if (calendarInfo != null) {
             intent.putExtra("id", calendarInfo.id);
             intent.putExtra("summary", calendarInfo.summary);

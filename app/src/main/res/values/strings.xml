@@ -1,10 +1,11 @@
 <resources>
+    <!--common string -->
     <string name="app_name">WWMBibibig</string>
     <string name="title_activity_main">MainActivity</string>
-
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
+    <!--calendar string-->
     <string name="accounts">Accounts</string>
     <string name="description_add">Add Calendar</string>
     <string name="summary">Title</string>
@@ -26,4 +27,13 @@
     <string name="title_activity_insert_event">InsertEventActivity</string>
     <string name="title_activity_test">test</string>
     <string name="title_activity_calendar_event_list">CalendarEventList</string>
+    <string name="title_activity_add_or__edit__event">Add_or_Edit_EventActivity</string>
+
+    <!--test string-->
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_example">Example action</string>
 </resources>
